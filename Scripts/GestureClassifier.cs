@@ -6,31 +6,65 @@ using System.IO;
 using System.Linq;
 using System.Collections;
 
+/// <summary>
+/// Classifies gestures using a pre-trained ONNX model and updates the game state based on the classification results.
+/// </summary>
 public class GestureSynthGrayClassifier : MonoBehaviour
 {
+    /// <summary>
+    /// The ONNX model used for gesture classification.
+    /// </summary>
     [Header("ONNX Model (synth_gray)")]
     public NNModel onnxModel;
 
+    /// <summary>
+    /// The UI element displaying the gesture canvas.
+    /// </summary>
     [Header("UI References")]
     public RawImage gestureCanvas;
+
+    /// <summary>
+    /// The UI element displaying the classification output.
+    /// </summary>
     public TextMeshProUGUI outputText;
 
-    // ustawione na 216×216 – takie same jak texture w VRGestureRecorder
+    /// <summary>
+    /// The height and width of the input texture for the model.
+    /// </summary>
     int _H = 216, _W = 216;
+
+    /// <summary>
+    /// The worker used to execute the ONNX model.
+    /// </summary>
     IWorker _worker;
+
+    /// <summary>
+    /// The labels corresponding to the output classes of the model.
+    /// </summary>
     readonly string[] _labels = { "circle", "loop", "s", "spiral", "w" };
 
+    /// <summary>
+    /// Initializes the ONNX model and creates a worker for inference.
+    /// </summary>
     void Start()
     {
         var model = ModelLoader.Load(onnxModel);
         _worker = WorkerFactory.CreateWorker(WorkerFactory.Type.CSharpBurst, model);
     }
 
+    /// <summary>
+    /// Disposes of the worker when the object is destroyed.
+    /// </summary>
     void OnDestroy()
     {
         _worker?.Dispose();
     }
 
+    /// <summary>
+    /// Reads the texture from a RawImage, supporting both Texture2D and RenderTexture types.
+    /// </summary>
+    /// <param name="rawImage">The RawImage to read the texture from.</param>
+    /// <returns>The extracted Texture2D, or null if the texture type is unsupported.</returns>
     Texture2D ReadTextureFromRawImage(RawImage rawImage)
     {
         if (rawImage.texture is Texture2D tex2D)
@@ -53,13 +87,19 @@ public class GestureSynthGrayClassifier : MonoBehaviour
         return null;
     }
 
-
+    /// <summary>
+    /// Initiates the gesture classification process and updates the cooldown timer.
+    /// </summary>
     public void Classify()
     {
         GameManager.instance.currDrawingCooldown = GameManager.instance.drawingCooldown;
         StartCoroutine(RunInferenceAsync());
     }
 
+    /// <summary>
+    /// Runs the gesture classification asynchronously and updates the game state based on the result.
+    /// </summary>
+    /// <returns>An enumerator for coroutine execution.</returns>
     IEnumerator RunInferenceAsync()
     {
         var srcTex = gestureCanvas.texture as Texture2D;
@@ -78,7 +118,7 @@ public class GestureSynthGrayClassifier : MonoBehaviour
             data[i * 3 + 2] = px[i].b / 255f;
         }
 
-        yield return null; // Let Unity breathe
+        yield return null;
 
         Tensor t = new Tensor(1, _H, _W, 3, data);
         _worker.Execute(t);
@@ -93,5 +133,4 @@ public class GestureSynthGrayClassifier : MonoBehaviour
 
         GameManager.instance.HandleGestureInput(prob > 0.3f ? _labels[cls] : "unknown");
     }
-
 }

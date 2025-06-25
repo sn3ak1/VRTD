@@ -5,12 +5,37 @@ using Unity.Barracuda;
 using UnityEngine;
 using UnityEngine.UI;
 
+/// <summary>
+/// Manages the selection and display of drawings in the game.
+/// </summary>
 public class DrawingSelector : MonoBehaviour
 {
-    private RawImage imageDisplay; // UI element to show the next drawing
-    public TextMeshProUGUI resultText; // UI element to show the result of the drawing selection
+    /// <summary>
+    /// UI element to display the next drawing.
+    /// </summary>
+    private RawImage imageDisplay;
+
+    /// <summary>
+    /// UI element to display the result of the drawing selection.
+    /// </summary>
+    public TextMeshProUGUI resultText;
+
+    /// <summary>
+    /// The name of the currently displayed drawing.
+    /// </summary>
     private string currentDrawing;
-    // Start is called before the first frame update
+
+    /// <summary>
+    /// Gets the name of the currently displayed drawing.
+    /// </summary>
+    public string CurrentDrawing
+    {
+        get { return currentDrawing; }
+    }
+
+    /// <summary>
+    /// Initializes the drawing selector and loads the first drawing.
+    /// </summary>
     void Start()
     {
         imageDisplay = GetComponent<RawImage>();
@@ -22,11 +47,10 @@ public class DrawingSelector : MonoBehaviour
         LoadNext(); // Load the first drawing when the script starts
     }
 
-    public string CurrentDrawing
-    {
-        get { return currentDrawing; }
-    }
-
+    /// <summary>
+    /// Updates the result text based on the user's selection and loads the next drawing.
+    /// </summary>
+    /// <param name="prev">Indicates whether the previous drawing was correct.</param>
     public void NextDrawing(bool prev)
     {
         if (prev)
@@ -40,6 +64,10 @@ public class DrawingSelector : MonoBehaviour
         LoadNext();
     }
 
+    /// <summary>
+    /// Loads the next drawing from the "Drawings" folder in the Resources directory.
+    /// Ensures the new drawing is not the same as the current one.
+    /// </summary>
     private void LoadNext()
     {
         // Load all PNG files from the "Drawing" folder in the Resources directory
@@ -75,6 +103,4 @@ public class DrawingSelector : MonoBehaviour
         currentDrawing = texture.name; // Store the name of the drawing
         imageDisplay.texture = texture;
     }
-
-
 }

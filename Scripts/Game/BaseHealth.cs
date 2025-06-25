@@ -1,33 +1,53 @@
 using UnityEngine;
-using UnityEngine.UI; // For UI text display
+using UnityEngine.UI;
 using TMPro;
 using System;
 
-
+/// <summary>
+/// Manages the health of the base in the game.
+/// </summary>
 public class BaseHealth : MonoBehaviour
 {
+    /// <summary>
+    /// The maximum health of the base.
+    /// </summary>
     public int maxHealth = 100;
+
+    /// <summary>
+    /// The current health of the base.
+    /// </summary>
     private int currentHealth;
-    // public TextMeshProUGUI healthText; // Assign a UI Text element in the Inspector
 
-    public HealthBarUI healthBarUI; // Reference to the HealthBarUI script
+    /// <summary>
+    /// Reference to the HealthBarUI component to update the health bar.
+    /// </summary>
+    public HealthBarUI healthBarUI;
 
+    /// <summary>
+    /// Initializes the base health at the start of the game.
+    /// </summary>
     void Start()
     {
         Reset();
     }
 
+    /// <summary>
+    /// Resets the base health to the maximum value and updates the health bar.
+    /// </summary>
     void Reset()
     {
         currentHealth = maxHealth;
-        // UpdateHealthUI();
         healthBarUI.SetMaxHealth(maxHealth);
     }
 
+    /// <summary>
+    /// Reduces the base's health by the specified damage amount and updates the health bar.
+    /// Triggers the GameOver method if health drops to zero or below.
+    /// </summary>
+    /// <param name="damage">The amount of damage to apply to the base.</param>
     public void TakeDamage(int damage)
     {
         currentHealth -= damage;
-        // UpdateHealthUI();
         healthBarUI.SetHealth(currentHealth);
         if (currentHealth <= 0)
         {
@@ -35,14 +55,10 @@ public class BaseHealth : MonoBehaviour
         }
     }
 
-    // void UpdateHealthUI()
-    // {
-    //     if (healthText != null)
-    //     {
-    //         healthText.text = "Base HP: " + currentHealth;
-    //     }
-    // }
-
+    /// <summary>
+    /// Handles the game over logic when the base's health reaches zero.
+    /// Resets the base health and notifies the GameManager.
+    /// </summary>
     void GameOver()
     {
         Reset(); // Reset the base health for the next game

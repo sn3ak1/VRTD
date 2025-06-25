@@ -5,21 +5,59 @@ using UnityEngine.UI;
 using UnityEngine.Android;
 #endif
 
+/// <summary>
+/// Records VR gestures using a controller and renders them onto a texture for classification.
+/// </summary>
 public class VRGestureRecorder : MonoBehaviour
 {
+    /// <summary>
+    /// The VR controller used for recording gestures.
+    /// </summary>
     public OVRInput.Controller controller = OVRInput.Controller.RTouch;
+
+    /// <summary>
+    /// The UI element displaying the gesture canvas.
+    /// </summary>
     public RawImage gestureCanvas;
+
+    /// <summary>
+    /// The gesture classifier used to classify recorded gestures.
+    /// </summary>
     public GestureSynthGrayClassifier gestureClassifier;
 
-    // teraz canvas 216×216 – dokładnie taki, jak do sieci
+    /// <summary>
+    /// The size of the texture used for rendering gestures.
+    /// </summary>
     const int TEX_SIZE = 216;
+
+    /// <summary>
+    /// The radius of the brush used for drawing gestures.
+    /// </summary>
     const int BRUSH_RADIUS = 2;
+
+    /// <summary>
+    /// The color of the brush used for drawing gestures.
+    /// </summary>
     readonly Color BRUSH_COLOR = Color.white;
 
+    /// <summary>
+    /// The texture used for rendering gestures.
+    /// </summary>
     private Texture2D drawingTexture;
+
+    /// <summary>
+    /// The raw points recorded from the VR controller.
+    /// </summary>
     private List<Vector3> rawPoints = new();
+
+    /// <summary>
+    /// Indicates whether the recorder is currently recording a gesture.
+    /// </summary>
     private bool isRecording = false;
 
+    /// <summary>
+    /// Initializes the drawing texture and clears it.
+    /// </summary>
     void Start()
     {
         drawingTexture = new Texture2D(TEX_SIZE, TEX_SIZE, TextureFormat.RGBA32, false);
@@ -29,6 +67,9 @@ public class VRGestureRecorder : MonoBehaviour
         gestureCanvas.texture = drawingTexture;
     }
 
+    /// <summary>
+    /// Updates the recorder state, handles input, and processes gestures.
+    /// </summary>
     void Update()
     {
         if (GameManager.instance == null || !GameManager.instance.CanDraw)
@@ -52,6 +93,9 @@ public class VRGestureRecorder : MonoBehaviour
             rawPoints.Add(OVRInput.GetLocalControllerPosition(controller));
     }
 
+    /// <summary>
+    /// Clears the drawing texture by filling it with a black color.
+    /// </summary>
     void ClearTexture()
     {
         var cols = drawingTexture.GetPixels32();
@@ -61,6 +105,9 @@ public class VRGestureRecorder : MonoBehaviour
         drawingTexture.Apply();
     }
 
+    /// <summary>
+    /// Draws the recorded stroke onto the texture by mapping 3D points to 2D space.
+    /// </summary>
     void DrawStroke()
     {
         if (rawPoints.Count < 2) return;
@@ -91,6 +138,13 @@ public class VRGestureRecorder : MonoBehaviour
         drawingTexture.Apply();
     }
 
+    /// <summary>
+    /// Draws a thick line between two points on the texture.
+    /// </summary>
+    /// <param name="x0">The x-coordinate of the starting point.</param>
+    /// <param name="y0">The y-coordinate of the starting point.</param>
+    /// <param name="x1">The x-coordinate of the ending point.</param>
+    /// <param name="y1">The y-coordinate of the ending point.</param>
     void DrawThickLine(int x0, int y0, int x1, int y1)
     {
         int dx = Mathf.Abs(x1 - x0), dy = Mathf.Abs(y1 - y0);
@@ -106,6 +160,11 @@ public class VRGestureRecorder : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Draws a thick pixel at the specified position on the texture.
+    /// </summary>
+    /// <param name="cx">The x-coordinate of the pixel.</param>
+    /// <param name="cy">The y-coordinate of the pixel.</param>
     void DrawThickPixel(int cx, int cy)
     {
         for (int oy = -BRUSH_RADIUS; oy <= BRUSH_RADIUS; oy++)

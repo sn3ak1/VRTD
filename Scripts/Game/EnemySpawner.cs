@@ -4,33 +4,80 @@ using System.Collections.Generic;
 using UnityEngine.UI;
 using TMPro; // For lists
 
+/// <summary>
+/// Manages the spawning and removal of enemies in waves.
+/// </summary>
 public class EnemySpawner : MonoBehaviour
 {
+    /// <summary>
+    /// The prefab used to instantiate new enemies.
+    /// </summary>
     public GameObject enemyPrefab;
 
+    /// <summary>
+    /// UI element to display the current wave number.
+    /// </summary>
     public TextMeshProUGUI waveText; // UI Text to display current wave
 
+    /// <summary>
+    /// Time interval between enemy spawns within a wave.
+    /// </summary>
     public float timeBetweenSpawns = 2f;
+
+    /// <summary>
+    /// Number of enemies to spawn in the first wave.
+    /// </summary>
     public int enemiesPerWave = 5;
+    /// <summary>
+    /// Current number of enemies to spawn in the ongoing wave.
+    /// </summary>
     private int currEnemiesPerWave;
+
+    /// <summary>
+    /// Time interval between waves.
+    /// </summary>
     public float waveCooldown = 10f; // Time between waves
+    /// <summary>
+    /// Current cooldown time before the next wave starts.
+    /// </summary>
     private float currWaveCooldown;
 
+    /// <summary>
+    /// The current wave number.
+    /// </summary>
     public int currentWave = 0;
 
+    /// <summary>
+    /// The spawn point where enemies appear.
+    /// </summary>
     private Transform spawnPoint; // Where enemies appear
 
+    /// <summary>
+    /// Number of enemies spawned in the current wave.
+    /// </summary>
     private int enemiesSpawnedInWave = 0;
+    /// <summary>
+    /// Indicates whether a wave is currently being spawned.
+    /// </summary>
     private bool spawningWave = false;
 
+    /// <summary>
+    /// List of active enemies currently in the game.
+    /// </summary>
     public List<Enemy> activeEnemies = new List<Enemy>(); // Track active enemies
 
+    /// <summary>
+    /// Initializes the spawner and starts the first wave.
+    /// </summary>
     void Start()
     {
         spawnPoint = transform; // Set spawn point to this object's transform
         Reset(); // Initialize the spawner
     }
 
+    /// <summary>
+    /// Resets the spawner to its initial state and starts the first wave.
+    /// </summary>
     public void Reset()
     {
         currentWave = 0; // Reset current wave
@@ -39,6 +86,9 @@ public class EnemySpawner : MonoBehaviour
         StartNextWave();
     }
 
+    /// <summary>
+    /// Updates the spawner's state, including checking for wave completion.
+    /// </summary>
     void Update()
     {
         if (GameManager.instance.isGameOver)
@@ -54,6 +104,9 @@ public class EnemySpawner : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Starts the next wave of enemies.
+    /// </summary>
     void StartNextWave()
     {
         if (GameManager.instance.isGameOver)
@@ -77,6 +130,10 @@ public class EnemySpawner : MonoBehaviour
         StartCoroutine(SpawnWave());
     }
 
+    /// <summary>
+    /// Spawns enemies for the current wave over time.
+    /// </summary>
+    /// <returns>An enumerator for coroutine execution.</returns>
     IEnumerator SpawnWave()
     {
         if (GameManager.instance.isGameOver)
@@ -101,12 +158,19 @@ public class EnemySpawner : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Removes a specific enemy from the game and destroys its GameObject.
+    /// </summary>
+    /// <param name="enemy">The enemy to remove.</param>
     public void RemoveEnemy(Enemy enemy)
     {
         activeEnemies.Remove(enemy);
         Destroy(enemy.gameObject);
     }
 
+    /// <summary>
+    /// Removes all active enemies from the game and clears the list.
+    /// </summary>
     public void RemoveAllEnemies()
     {
         foreach (Enemy enemy in activeEnemies)

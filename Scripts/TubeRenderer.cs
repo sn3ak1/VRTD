@@ -4,25 +4,73 @@ using UnityEngine;
 
 public class TubeRenderer : MonoBehaviour
 {
+    /// <summary>
+    /// The positions that define the path of the tube.
+    /// </summary>
     [SerializeField] private Vector3[] _positions;
+
+    /// <summary>
+    /// The number of sides for the tube's cross-section.
+    /// </summary>
     [SerializeField] public int _sides;
+
+    /// <summary>
+    /// The radius of the tube at one end.
+    /// </summary>
     [SerializeField] public float _radiusOne;
+
+    /// <summary>
+    /// The radius of the tube at the other end (used if _useTwoRadii is true).
+    /// </summary>
     [SerializeField] public float _radiusTwo;
+
+    /// <summary>
+    /// Whether the tube's vertices are defined in world space.
+    /// </summary>
     [SerializeField] private bool _useWorldSpace = true;
+
+    /// <summary>
+    /// Whether to interpolate between two radii along the tube's length.
+    /// </summary>
     [SerializeField] private bool _useTwoRadii = false;
 
+    /// <summary>
+    /// The vertices of the tube mesh.
+    /// </summary>
     private Vector3[] _vertices;
+
+    /// <summary>
+    /// The mesh representing the tube.
+    /// </summary>
     private Mesh _mesh;
+
+    /// <summary>
+    /// The MeshFilter component used to render the tube.
+    /// </summary>
     private MeshFilter _meshFilter;
+
+    /// <summary>
+    /// The MeshRenderer component used to render the tube.
+    /// </summary>
     private MeshRenderer _meshRenderer;
+
+    /// <summary>
+    /// The MeshCollider component used for collision detection.
+    /// </summary>
     private MeshCollider _meshCollider;
 
+    /// <summary>
+    /// Gets or sets the material used to render the tube.
+    /// </summary>
     public Material material
     {
         get { return _meshRenderer.material; }
         set { _meshRenderer.material = value; }
     }
 
+    /// <summary>
+    /// Initializes the tube renderer components and sets up the mesh and collider.
+    /// </summary>
     private void Awake()
     {
         _meshFilter = GetComponent<MeshFilter>();
@@ -50,27 +98,43 @@ public class TubeRenderer : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Enables the MeshRenderer when the object is enabled.
+    /// </summary>
     private void OnEnable()
     {
         _meshRenderer.enabled = true;
     }
 
+    /// <summary>
+    /// Disables the MeshRenderer when the object is disabled.
+    /// </summary>
     private void OnDisable()
     {
         _meshRenderer.enabled = false;
     }
 
+    /// <summary>
+    /// Ensures the number of sides is at least 3 when modified in the Inspector.
+    /// </summary>
     private void OnValidate()
     {
         _sides = Mathf.Max(3, _sides);
     }
 
+    /// <summary>
+    /// Sets the positions that define the tube's path and regenerates the mesh.
+    /// </summary>
+    /// <param name="positions">The positions defining the tube's path.</param>
     public void SetPositions(Vector3[] positions)
     {
         _positions = positions;
         GenerateMesh();
     }
 
+    /// <summary>
+    /// Generates the tube mesh based on the current positions and parameters.
+    /// </summary>
     public void GenerateMesh()
     {
         if (_mesh == null || _positions == null || _positions.Length <= 1)
@@ -120,6 +184,10 @@ public class TubeRenderer : MonoBehaviour
         _meshCollider.sharedMesh = _mesh;
     }
 
+    /// <summary>
+    /// Generates the UV coordinates for the tube mesh.
+    /// </summary>
+    /// <returns>An array of UV coordinates.</returns>
     private Vector2[] GenerateUVs()
     {
         var uvs = new Vector2[_positions.Length * _sides];
@@ -139,6 +207,10 @@ public class TubeRenderer : MonoBehaviour
         return uvs;
     }
 
+    /// <summary>
+    /// Generates the indices for the tube mesh triangles.
+    /// </summary>
+    /// <returns>An array of triangle indices.</returns>
     private int[] GenerateIndices()
     {
         // Two triangles and 3 vertices
@@ -167,6 +239,11 @@ public class TubeRenderer : MonoBehaviour
         return indices;
     }
 
+    /// <summary>
+    /// Calculates the vertices of a circular cross-section at a given position along the tube.
+    /// </summary>
+    /// <param name="index">The index of the position along the tube.</param>
+    /// <returns>An array of vertices forming the circular cross-section.</returns>
     private Vector3[] CalculateCircle(int index)
     {
         var dirCount = 0;
